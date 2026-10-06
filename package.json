@@ -9,8 +9,9 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
+  "type": "module",
   "dependencies": {
-    "@unblessed/node": "^1.0.0-alpha.23"
+    "@unblessed/node": "^1.0.0-alpha.23",
+    "commander": "^15.0.0"
   }
 }
