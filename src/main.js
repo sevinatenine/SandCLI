@@ -70,7 +70,9 @@ async function main() {
             }
 
             startGui();
-            initGame(openMainWorldScreen(), world);
+            
+            const gui = await openMainWorldScreen(world);
+            initGame(gui, world);
 
         } else {
 
@@ -94,7 +96,8 @@ async function main() {
                 process.exit(-1);
             }
 
-            initGame(openMainWorldScreen(), world);
+            const gui = await openMainWorldScreen(world);
+            initGame(gui, world);
         }
     }
 }

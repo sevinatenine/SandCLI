@@ -21,7 +21,7 @@ function loadWorld(name) {
 function saveWorld(name, world) {
     const worldFile = path.join(worldsPath, `${name}${(getConf()["ext"] || ".sw")}`);
     try {
-        writeFileSync(worldFile, world.toJSON());
+        writeFileSync(worldFile, JSON.stringify(world.toObject()));
     } catch (e) {
         return { success: false, result: e };
     }

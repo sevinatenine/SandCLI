@@ -1,1 +1,1 @@
-{"name":"def","grid":[],"width":78,"height":22}
+{"name":"def","grid":[],"width":40,"height":12}

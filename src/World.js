@@ -4,6 +4,7 @@ export default class World {
         this.grid = [];
         this.width = width;
         this.height = height;
+        this.particleCount = 0;
     }
 
     static fromObject(j) {
@@ -13,7 +14,9 @@ export default class World {
         return w;
     }
 
-    toJSON() {
-        return JSON.stringify({ ...this });
+    toObject() {
+        if (this.grid) {
+            return { ...this, grid: Array.from(this.grid) };
+        } else return { ...this };
     }
 }
