@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import { openMainWorldScreen, openSelectWorldScreen, startGui, stopGui } from "./gui.js";
 import { createWorld, loadWorld } from "./worlds.js";
 import { options, args } from "./args.js";
