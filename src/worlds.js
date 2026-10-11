@@ -1,41 +1,42 @@
-import World from "./World.js"
+import World from "./World.js";
 import getConf from "./config.js";
 import path from "path";
-import { readFileSync, writeFileSync } from "fs";
+import os from "os";
+import { readFileSync, writeFileSync, mkdirSync } from "fs";
 
-const worldsPath = path.join(import.meta.dirname, '..', getConf()["worldsFolder"] || "./worlds");
+const conf = getConf();
+const ext = conf["ext"] || ".sw";
+const worldsPath = path.resolve(
+    conf["worldsFolder"] || path.join(os.homedir(), ".sandcli", "worlds")
+);
+
+function worldFilePath(name) {
+    return path.join(worldsPath, `${path.basename(name)}${ext}`);
+}
 
 function loadWorld(name) {
-    const worldFile = path.join(worldsPath, `${name}${(getConf()["ext"] || ".sw")}`);
     try {
-        var worldRaw = readFileSync(worldFile);
-        var worldJSON = JSON.parse(worldRaw);
-        var world = World.fromObject(worldJSON);
+        const raw = readFileSync(worldFilePath(name), "utf8");
+        const world = World.fromObject(JSON.parse(raw));
+        return { success: true, result: world };
     } catch (e) {
         return { success: false, result: e };
     }
-
-    return { success: true, result: world };
 }
 
 function saveWorld(name, world) {
-    const worldFile = path.join(worldsPath, `${name}${(getConf()["ext"] || ".sw")}`);
     try {
-        writeFileSync(worldFile, JSON.stringify(world.toObject()));
+        mkdirSync(worldsPath, { recursive: true });
+        writeFileSync(worldFilePath(name), JSON.stringify(world.toObject()));
+        return { success: true, result: world };
     } catch (e) {
         return { success: false, result: e };
     }
-
-    return { success: true, result: world };
 }
 
 function createWorld(name, width, height) {
-    var world = new World(name, width, height);
+    const world = new World(name, width, height);
     return saveWorld(name, world);
 }
 
-export {
-    loadWorld,
-    createWorld,
-    saveWorld
-}
+export { loadWorld, createWorld, saveWorld };

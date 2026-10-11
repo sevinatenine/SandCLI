@@ -1,14 +1,14 @@
 {
-  "name": "sandcli",
+  "name": "sandcli-sim",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "A sand simulation in the terminal!",
+  "main": "src/main.js",
   "scripts": {
     "start": "node src/main.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": ["sand", "cli", "sand-sim", "sim", "simulation", "sandcli", "sand-cli"],
+  "author": "Simon (sevinatenine)",
+  "license": "MIT",
   "type": "module",
   "dependencies": {
     "@unblessed/node": "^1.0.0-alpha.23",

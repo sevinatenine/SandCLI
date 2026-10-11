@@ -8,7 +8,14 @@ setRuntime(new NodeRuntime());
 var screen;
 
 function startGui() {
-    screen = new Screen({ smartCSR: true });
+    screen = new Screen({ smartCSR: false });
+
+    screen.on('keypress', (ch, key) => {
+        if (!confirmState) return;
+        const name = key && key.name;
+        if (ch === 'y' || ch === 'Y' || name === 'enter') resolveConfirm(true);
+        else if (ch === 'n' || ch === 'N' || name === 'escape') resolveConfirm(false);
+    });
 }
 
 function stopGui() {
@@ -21,6 +28,7 @@ function stopGui() {
 var selectedWorld = null;
 let worldBox = null;
 let infoBox = null;
+var selectBox = null;
 
 async function openMainWorldScreen(world) {
     selectedWorld = world;
@@ -29,13 +37,15 @@ async function openMainWorldScreen(world) {
         parent: screen,
         top: 'center',
         left: 'center',
+        tags: false,
+        wrap: false,
         width: world.width+2,
         height: world.height+2,
         content: '',
         border: { type: 'line' },
         style: {
             fg: 'white',
-            bg: 'blue',
+            bg: 'black',
             border: { fg: '#f0f0f0' }
         }
     });
@@ -45,13 +55,16 @@ async function openMainWorldScreen(world) {
         bottom: 0,
         left: 0,
         width: '100%',
-        height: 6,
+        height: 7,
+        tags: true,
         content: `Particles: ${world.particleCount} | ${world.paused ? "Paused" : "Running"}`,
         border: { type: 'line' },
         style: {
             fg: 'white',
             border: { fg: '#f0f0f0' }
-        }
+        },
+        mouse: true,
+        clickable: true,
     });
 
     screen.render();
@@ -82,6 +95,13 @@ function openSelectWorldScreen() {
 
         selectBox.focus();
 
+        selectBox.key(['q', 'escape'], () => {
+            selectBox.destroy();
+            selectBox = null;
+            stopGui();
+            process.exit(0);
+        });
+
         selectBox.on('select', (item, index) => {
             const selectedText = item.getText();
 
@@ -99,21 +119,74 @@ function openSelectWorldScreen() {
 function updateInfo(text) {
     if (!infoBox) return;
     infoBox.setContent(text);
-    screen.render();
 }
 
 function updateBoxContents(text) {
     if (!worldBox) return;
     worldBox.setContent(text);
-    screen.render();
 }
 
 function render() {
     if (screen) screen.render();
 }
 
-function registerKeyListener(...args) {
-    screen.key(...args);
+let confirmState = null;
+
+let confirmBox = null;
+
+function askConfirm(message, onYes) {
+    confirmState = { message, onYes };
+
+    confirmBox = new Box({
+        parent: screen,
+        top: 'center',
+        left: 'center',
+        width: Math.max(message.length + 6, 24),
+        height: 5,
+        tags: false,
+        align: 'center',
+        content: `\n${message}`,
+        border: { type: 'line' },
+        style: { fg: 'white', bg: 'black', border: { fg: 'red' } }
+    });
+
+    screen.render();
 }
 
-export { openMainWorldScreen, openSelectWorldScreen, startGui, stopGui, updateInfo, updateBoxContents, render, registerKeyListener };
+function isConfirming() { return confirmState !== null; }
+function confirmMessage() { return confirmState ? confirmState.message : null; }
+
+function resolveConfirm(yes) {
+    const c = confirmState;
+    confirmState = null;
+
+    if (confirmBox) {
+        confirmBox.destroy();
+        confirmBox = null;
+    }
+    screen.render();
+
+    if (yes) c.onYes();
+}
+
+function onInfoClick(fn) {
+    infoBox.on('click', (data) => {
+        const x = data.x - infoBox.aleft - infoBox.ileft;
+        const y = data.y - infoBox.atop - infoBox.itop;
+        fn(x, y);
+    });
+}
+
+function onWorldClick(fn) {
+    worldBox.on('click', (data) => {
+        const x = data.x - worldBox.aleft - worldBox.ileft;
+        const y = data.y - worldBox.atop - worldBox.itop;
+        fn(x, y);
+    });
+}
+
+// normal keys are ignored while a prompt is open
+function registerKeyListener(keys, fn) {
+    screen.key(keys, (...args) => { if (!confirmState) fn(...args); });
+}
+export { openMainWorldScreen, openSelectWorldScreen, startGui, stopGui, updateInfo, updateBoxContents, render, registerKeyListener, askConfirm, isConfirming, confirmMessage, resolveConfirm, onInfoClick, onWorldClick };
