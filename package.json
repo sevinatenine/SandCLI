@@ -1,6 +1,6 @@
 {
   "name": "sandcli-sim",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A sand simulation in the terminal!",
   "main": "./src/main.js",
   "scripts": {
