@@ -10,7 +10,12 @@ var screen;
 
 function startGui() {
     ensureUnblessedData();
-    screen = new Screen({ smartCSR: false });
+    // On Windows, TERM is usually unset, so unblessed falls back to the
+    // "windows-ansi" terminfo, which only declares 8 colors. Every palette color
+    // above 8 then gets squashed down (dark browns and grays become black).
+    // Windows Terminal and modern conhost handle 256 colors fine, so ask for that.
+    const terminal = process.platform === "win32" && !process.env.TERM ? "xterm-256color" : undefined;
+    screen = new Screen({ smartCSR: false, terminal });
 
     screen.on('keypress', (ch, key) => {
         if (!confirmState) return;
