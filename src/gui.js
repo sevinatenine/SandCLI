@@ -2,12 +2,14 @@ import { setRuntime, NodeRuntime, Screen, Box } from '@unblessed/node';
 import { List } from '@unblessed/core';
 import { readdirSync } from "fs";
 import getConf from "./config.js";
+import { ensureUnblessedData } from "./patch.js";
 
 setRuntime(new NodeRuntime());
 
 var screen;
 
 function startGui() {
+    ensureUnblessedData();
     screen = new Screen({ smartCSR: false });
 
     screen.on('keypress', (ch, key) => {
@@ -185,7 +187,6 @@ function onWorldClick(fn) {
     });
 }
 
-// normal keys are ignored while a prompt is open
 function registerKeyListener(keys, fn) {
     screen.key(keys, (...args) => { if (!confirmState) fn(...args); });
 }
